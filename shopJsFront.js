@@ -1,4 +1,4 @@
-
+*/
 //backend URL
 const file='http://localhost:3000'; 
 
@@ -369,4 +369,7 @@ document.addEventListener('DOMContentLoaded',()=>{ //addEventtListener-> wait fo
     }else if(currentPage.includes('checkout')){
         checkCart();
     }
+
 });
+
+*/
