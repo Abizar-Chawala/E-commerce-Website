@@ -23,7 +23,7 @@ let products = [
     B_name: 'Blue-Tongued Skink',
     B_description: 'A friendly, hardy lizard known for its bright blue tongue and calm personality. Great for beginners.',
     B_price: 349.99,
-    B_image: 'images/Skink.jpg',
+    B_img: 'images/Skink.jpg',
     B_stock: 8
   },
   {
@@ -31,7 +31,7 @@ let products = [
     B_name: 'Panther Chameleon',
     B_description: 'A colorful, highly sought-after chameleon species that displays bright reds, blues, and greens.',
     B_price: 499.99,
-    B_image: 'images/Chameleon.jpg',
+    B_img: 'images/Chameleon.jpg',
     B_stock: 5
   },
   {
@@ -39,7 +39,7 @@ let products = [
     B_name: 'Green Tree Python',
     B_description: 'A beautiful arboreal snake known for its vivid green coloration and unique resting posture.',
     B_price: 599.99,
-    B_image: 'images/Python.jpg',
+    B_img: 'images/Python.jpg',
     B_stock: 4
   },
   {
@@ -47,7 +47,7 @@ let products = [
     B_name: 'Fennec Fox',
     B_description: 'A small desert fox with oversized ears. Intelligent, playful, and requires specialized care.',
     B_price: 1299.99,
-    B_image: 'images/Fox.jpg',
+    B_img: 'images/Fox.jpg',
     B_stock: 2
   },
   {
@@ -55,7 +55,7 @@ let products = [
     B_name: 'African Spurred Tortoise',
     B_description: 'A large tortoise species that is hardy, long-lived, and friendly. Requires outdoor space.',
     B_price: 249.99,
-    B_image: 'images/Tortoise.jpg',
+    B_img: 'images/Tortoise.jpg',
     B_stock: 10
   },
   {
@@ -63,7 +63,7 @@ let products = [
     B_name: 'Scarlet Macaw',
     B_description: 'A highly intelligent and vibrant parrot with bright red, blue, and yellow feathers.',
     B_price: 1899.99,
-    B_image: 'images/Macaw.jpg',
+    B_img: 'images/Macaw.jpg',
     B_stock: 3
   },
   {
@@ -71,7 +71,7 @@ let products = [
     B_name: 'Ring-Tailed Cat',
     B_description: 'A nocturnal mammal with catlike agility and raccoon-like markings. Curious and energetic.',
     B_price: 799.99,
-    B_image: 'images/RingTailedCat.jpg',
+    B_img: 'images/RingTailedCat.jpg',
     B_stock: 6
   },
   {
@@ -79,7 +79,7 @@ let products = [
     B_name: 'Tanuki (Japanese Raccoon Dog)',
     B_description: 'A rare and adorable canine species native to Japan. Intelligent, playful, and mischievous.',
     B_price: 1299.99,
-    B_image: 'images/Tanuki.jpg',
+    B_img: 'images/Tanuki.jpg',
     B_stock: 3
   },
   {
@@ -87,7 +87,7 @@ let products = [
     B_name: 'Sugar Glider',
     B_description: 'A tiny gliding marsupial that bonds closely with owners. Social, fast, and fun to watch.',
     B_price: 299.99,
-    B_image: 'images/Glider.jpg',
+    B_img: 'images/Glider.jpg',
     B_stock: 12
   },
   {
@@ -95,7 +95,7 @@ let products = [
     B_name: 'Bengal Cat',
     B_description: 'A sleek, muscular domestic cat with leopard-like spots and high energy.',
     B_price: 1499.99,
-    B_image: 'images/BengalCat.jpg',
+    B_img: 'images/BengalCat.jpg',
     B_stock: 4
   },
   {
@@ -103,7 +103,7 @@ let products = [
     B_name: 'Sphynx Cat',
     B_description: 'A hairless cat breed known for its affectionate personality and unique appearance.',
     B_price: 999.99,
-    B_image: 'images/SphynxCat.jpg',
+    B_img: 'images/SphynxCat.jpg',
     B_stock: 5
   },
   {
@@ -111,7 +111,7 @@ let products = [
     B_name: 'Capuchin Monkey',
     B_description: 'An intelligent and social exotic monkey known for its expressive face and high energy. Requires expert-level care.',
     B_price: 4999.99,
-    B_image: 'images/Monkey.jpg',
+    B_img: 'images/Monkey.jpg',
     B_stock: 1
   }
 ];
@@ -186,7 +186,7 @@ app.post('/B_addtocart', (req, res) => {
         B_name: product.B_name,
         B_description: product.B_description,
         B_price: product.B_price,
-        B_image: product.B_image,
+        B_img: product.B_img,
         B_quantity: quantity
       });
       console.log(`  Added ${product.B_name} to cart`);
@@ -311,12 +311,12 @@ app.put('/B_updateQuantity', (req, res) => {
   }
 });
 
-// DELETE: Remove item from cart
-app.delete('/B_removefromcart', (req, res) => {
+// DELETE: Remove item from cart (using URL parameter)
+app.delete('/B_removefromcart/:productId', (req, res) => {
   console.log('🗑️  Removing from cart');
   
   try {
-    const { productId } = req.body;
+    const productId = parseInt(req.params.productId);
 
     if (!productId) {
       return res.status(400).json({
