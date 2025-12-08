@@ -84,7 +84,7 @@ body {
 }
 
 /* ============================================
-   Cart Items (Cart Page)
+   Cart Items (Cart Page) - FIXED
    ============================================ */
 
 .cart-item {
@@ -99,6 +99,7 @@ body {
     flex-wrap: wrap;
 }
 
+/* FIXED: Cart images now consistent size */
 .cart-item img {
     width: 120px;
     height: 120px;
@@ -201,6 +202,35 @@ body {
     color: #28a745;
     font-weight: bold;
     font-size: 1.1rem;
+}
+
+/* ============================================
+   Checkout Form Styles
+   ============================================ */
+
+.checkout-form {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-form .form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.checkout-form .form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+    font-size: 1rem;
+}
+
+.checkout-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 /* ============================================
