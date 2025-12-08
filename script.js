@@ -1,9 +1,5 @@
-
 //backend URL
 const file='http://localhost:3000'; 
-
-
-
 
 //Products 
 async function getProducts(){ //async= wait for backend to respond
@@ -19,21 +15,25 @@ async function getProducts(){ //async= wait for backend to respond
 
         const get = await wait.json(); //waits for response from backend + convert to js object
         loader.style.display='none'; //hide loader when data is back -> 'display'= add/removes element from page
-        productsBox.style.display='block'; //show products box in block: default full width
+        productsBox.style.display='flex'; //show products box in flex layout
 
 
         //displays products 
         productsBox.innerHTML=''; //clear products box before adding products
         get.B_products.forEach(product=>{
-            productsBox.innerHTML+= //bec products are dynamic (ex: quantity, price chnage, new products added) 
+            const productCard = document.createElement('div');
+            productCard.className = 'col-md-6 col-lg-4 col-xl-3';
+            productCard.innerHTML = 
             `
                 <div class = "product-box">
-                    <img src="${product.B_img}" alt =${product.B_name}/> 
+                    <img src="${product.B_img}" alt="${product.B_name}"/> 
                     <h3>${product.B_name}</h3>
+                    <p class="description">${product.B_description}</p>
                     <p class="price">$${product.B_price.toFixed(2)}</p> 
                     <button onclick="addToCart(${product.B_id})">Add to Cart</button>
                 </div>
             `;//${}=js variable -> $${product.price.toFixed(2)}= 2 decimal places
+            productsBox.appendChild(productCard);
         });
 
 
@@ -47,10 +47,6 @@ async function getProducts(){ //async= wait for backend to respond
 
     
 }
-
-
-
-
 
 
 //Add to cart
@@ -108,18 +104,12 @@ async function updateCartBadge(){
 }
 
 
-
-
-
-
-
-
-//Shoping cart
+//Shopping cart
 async function getCart(){
     const loader=document.getElementById('f_loader');
     const emptyMessage=document.getElementById('f_emptyMessage');
-    const ordercontent=document.getElementById('f_ordercontent'); //oerder summary ex total price
     const cartItemsBox=document.getElementById('f_cartItemsBox');//Items added to cart 
+    const cartItems=document.getElementById('f_cartItems');
     const subtotal=document.getElementById('f_subtotal');
     const tax=document.getElementById('f_tax');
     const total=document.getElementById('f_total');
@@ -140,28 +130,29 @@ async function getCart(){
         }
         
         //display cart items
-        cartItemsBox.style.display='block'; 
-        cartItemsBox.innerHTML=''; //clear cart items box before adding items
+        cartItemsBox.style.display='flex'; 
+        cartItems.innerHTML=''; //clear cart items box before adding items
         get.B_items.forEach(item =>{ //B_items= items from backend.loop through each item
-            cartItemsBox.innerHTML+= //crerating an html to add to cart items box from backend data (user chooses)
-
-            //make css 
+            const cartItem = document.createElement('div');
+            cartItem.className = 'cart-item';
+            cartItem.innerHTML = 
             `
-                <div class="cart-items">
-                    <img src="${item.B_img}" alt="${item.B_name}">
-                    <div>
-                        <h4>${item.B_name}</h4>
-                        <p>$${item.B_price.toFixed(2)}</p>
-                    </div>
-                    <div>
-                        <button onclick="changeQuantity(${item.B_id},${item.B_quantity - 1})">-</button>
-                        <span>${item.B_quantity}</span>
-                        <button onclick="changeQuantity(${item.B_id},${item.B_quantity + 1})">+</button>
-                    </div>
-                    <p>$${(item.B_price * item.B_quantity).toFixed(2)}</p>
-                    <button onclick="removeItem(${item.B_id})">Remove</button>
+                <img src="${item.B_img}" alt="${item.B_name}">
+                <div class="item-details">
+                    <h4>${item.B_name}</h4>
+                    <p class="item-price">$${item.B_price.toFixed(2)}</p>
+                </div>
+                <div class="quantity-controls">
+                    <button onclick="changeQuantity(${item.B_id},${item.B_quantity - 1})">-</button>
+                    <span>${item.B_quantity}</span>
+                    <button onclick="changeQuantity(${item.B_id},${item.B_quantity + 1})">+</button>
+                </div>
+                <div>
+                    <p class="fw-bold mb-2">$${(item.B_price * item.B_quantity).toFixed(2)}</p>
+                    <button class="remove-btn" onclick="removeItem(${item.B_id})">Remove</button>
                 </div>
             `;
+            cartItems.appendChild(cartItem);
         });
 
         //display totals 
@@ -176,6 +167,7 @@ async function getCart(){
     }
 
 }
+
 //change quantity
 async function changeQuantity(productId, newQuantity){
     if(newQuantity <1){
@@ -205,7 +197,7 @@ async function changeQuantity(productId, newQuantity){
 
 //remove from cart 
 async function removeItem(productId){
-    if(!confirm('you sure you want to remove item??')){//confirm= popup to confirm-> built in function
+    if(!confirm('Are you sure you want to remove this item?')){//confirm= popup to confirm-> built in function
         return;
     }
     try{
@@ -231,132 +223,207 @@ async function removeItem(productId){
 }
 
 
-
-
-
 //go to checkout page
-
 function goToCheckout(){
     window.location.href='checkout.html'; //window.location.href -> navigate to new page
 }
 
+//Load checkout page
+async function loadCheckoutPage(){
+    const loader = document.getElementById('f_loader');
+    const emptyCart = document.getElementById('f_emptyCart');
+    const checkoutContent = document.getElementById('f_checkoutContent');
+    const orderItems = document.getElementById('f_orderItems');
+    const subtotal = document.getElementById('f_subtotal');
+    const tax = document.getElementById('f_tax');
+    const total = document.getElementById('f_total');
 
-
-
-
-//checkout page
-async function checkout(){
-    const loadermessage=document.getElementById('f_loadermessage');
-    const checkoutMessage=document.getElementById('f_checkoutMessage');
-    const errorMessage= document.getElementById('f_errorMessage');
-
-    loadermessage.style.display='block';//show loader 
-
-    try{
-        const wait=await fetch('http://localhost:3000/B_checkout',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-                //??
-                //name: checkoutform.f_name.value,
-                //address: checkoutform.f_address.value,
-                //paymentMethod: checkoutform.f_paymentMethod.value
-                //??
-            })
-
-
-        });
-
-        const get=await wait.json();
-
-        if(get.B_success){
-            loadermessage.style.display='none';
-            checkoutMessage.style.display='block';
-
-            //display order 
-            displayOrder(get.B_order);
-
-        }else{
-            loadermessage.style.display='none';
-            errorMessage.style.display='block';
-            alert('Checkout failed. Please try again.');
-        }
-    }catch(error){
-        console.error('Error: In checkout', error);
-        loadermessage.style.display='none';
-        errorMessage.style.display='block';
-        alert('An error occurred during checkout. Please try again later.');
-    }
-
-
-
-}
-
-//display order summary
-function displayOrder(B_order){
-    const productId=document.getElementById('f_orderProductId');
-    const productbox=document.getElementById('f_orderProductbox');
-    const orderSubtotal=document.getElementById('f_orderSubtotal');
-    const orderTax=document.getElementById('f_orderTax');
-    const orderTotal=document.getElementById('f_orderTotal');
-
-    //display order info
-    //dont need
-    productId.innerHTML=`#${B_order.B_id}`;//order id from backend
-
-    //display ordered Items 
-    productbox.innerHTML='';//clear before adding items
-    B_order.B_items.forEach(item=>{ //loop through each item of ordered items
-        productbox.innerHTML+=
-        `
-            <div class="order-item">
-                <h4>${item.B_name} x ${item.B_quantity}</h4>
-                <p>$${(item.B_price * item.B_quantity).toFixed(2)}</p>
-            </div>
-        `
-
-    });
-
-    //display totals
-    orderSubtotal.innerHTML=`$${B_order.B_subtotal.toFixed(2)}`;//B_order.B_subtotal-> data from inside of object
-    orderTax.innerHTML=`$${B_order.B_tax.toFixed(2)}`;
-    orderTotal.innerHTML=`$${B_order.B_total.toFixed(2)}`;
-
-
-
-}
-
-
-
-//Check cart has items before checkout
-async function checkCart(){
     try{
         const wait = await fetch('http://localhost:3000/B_getcartitems',{
-            method:'GET'//get data from backend
-
+            method:'GET'
         });
 
-        const get=await wait.json();
+        const get = await wait.json();
+        loader.style.display = 'none';
 
-        if(get.B_items.length===0){
-            alert('Your cart is empty. Please add items to your cart before proceeding to checkout.');
-            window.location.href='cart.html'; //redirect to cart page
+        //check if cart is empty
+        if(get.B_items.length === 0){
+            emptyCart.style.display = 'block';
             return;
         }
 
-        checkout(); //proceed to checkout if cart has items
+        //display checkout form and order summary
+        checkoutContent.style.display = 'flex';
+
+        //display order items
+        orderItems.innerHTML = '';
+        get.B_items.forEach(item => {
+            orderItems.innerHTML += `
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <strong>${item.B_name}</strong>
+                        <br>
+                        <small class="text-muted">Qty: ${item.B_quantity} × $${item.B_price.toFixed(2)}</small>
+                    </div>
+                    <span class="fw-bold">$${(item.B_price * item.B_quantity).toFixed(2)}</span>
+                </div>
+            `;
+        });
+
+        //display totals
+        subtotal.innerHTML = `$${get.B_subtotal.toFixed(2)}`;
+        tax.innerHTML = `$${get.B_tax.toFixed(2)}`;
+        total.innerHTML = `$${get.B_total.toFixed(2)}`;
+
+        //setup form submission
+        setupCheckoutForm();
 
     }catch(error){
-        console.error('Error: In checkCart', error);
-        alert('An error occurred while checking the cart. Please try again later.');
+        console.error('Error: In loadCheckoutPage', error);
+        loader.style.display = 'none';
+        alert('Failed to load checkout page');
     }
 }
+
+//Setup checkout form
+function setupCheckoutForm(){
+    const form = document.getElementById('f_checkoutForm');
+    const cardDetails = document.getElementById('f_cardDetails');
+    const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+
+    //Toggle card details based on payment method
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', function(){
+            if(this.value === 'PayPal'){
+                cardDetails.style.display = 'none';
+            }else{
+                cardDetails.style.display = 'block';
+            }
+        });
+    });
+
+    //Handle form submission
+    form.addEventListener('submit', async function(e){
+        e.preventDefault();
+
+        //Get form data
+        const formData = {
+            fullName: document.getElementById('f_fullName').value,
+            email: document.getElementById('f_email').value,
+            phone: document.getElementById('f_phone').value,
+            address: document.getElementById('f_address').value,
+            city: document.getElementById('f_city').value,
+            state: document.getElementById('f_state').value,
+            zip: document.getElementById('f_zip').value,
+            paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value
+        };
+
+        //Store customer info in sessionStorage for thank you page
+        sessionStorage.setItem('customerInfo', JSON.stringify(formData));
+
+        //Process checkout
+        processCheckout();
+    });
+}
+
+//Process checkout
+async function processCheckout(){
+    const placeOrderBtn = document.getElementById('f_placeOrderBtn');
+    placeOrderBtn.disabled = true;
+    placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+    try{
+        const wait = await fetch('http://localhost:3000/B_checkout',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({})
+        });
+
+        const get = await wait.json();
+
+        if(get.B_success){
+            //Store order info for thank you page
+            sessionStorage.setItem('orderInfo', JSON.stringify(get.B_order));
+            //Redirect to thank you page
+            window.location.href = 'thankyou.html';
+        }else{
+            alert('Checkout failed. Please try again.');
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = 'Place Order';
+        }
+
+    }catch(error){
+        console.error('Error: In processCheckout', error);
+        alert('An error occurred during checkout. Please try again later.');
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.innerHTML = 'Place Order';
+    }
+}
+
+
+//Load thank you page
+function loadThankYouPage(){
+    const loader = document.getElementById('f_loader');
+    const errorMessage = document.getElementById('f_errorMessage');
+    const successMessage = document.getElementById('f_successMessage');
+
+    //Get order and customer info from sessionStorage
+    const orderInfo = JSON.parse(sessionStorage.getItem('orderInfo'));
+    const customerInfo = JSON.parse(sessionStorage.getItem('customerInfo'));
+
+    loader.style.display = 'none';
+
+    //Check if order info exists
+    if(!orderInfo || !customerInfo){
+        errorMessage.style.display = 'block';
+        return;
+    }
+
+    //Display success message
+    successMessage.style.display = 'block';
+
+    //Display order ID
+    document.getElementById('f_orderId').innerText = `#${orderInfo.B_id}`;
+
+    //Display customer info
+    document.getElementById('f_customerEmail').innerText = customerInfo.email;
+    document.getElementById('f_customerName').innerText = customerInfo.fullName;
+    document.getElementById('f_customerPhone').innerText = customerInfo.phone;
+    document.getElementById('f_customerAddress').innerText = 
+        `${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} ${customerInfo.zip}`;
+    document.getElementById('f_paymentMethod').innerText = customerInfo.paymentMethod;
+
+    //Display order items
+    const orderItemsBox = document.getElementById('f_orderItems');
+    orderItemsBox.innerHTML = '';
+    orderInfo.B_items.forEach(item => {
+        orderItemsBox.innerHTML += `
+            <div class="order-item">
+                <div>
+                    <h4>${item.B_name} × ${item.B_quantity}</h4>
+                    <small class="text-muted">$${item.B_price.toFixed(2)} each</small>
+                </div>
+                <p>$${(item.B_price * item.B_quantity).toFixed(2)}</p>
+            </div>
+        `;
+    });
+
+    //Display totals
+    document.getElementById('f_orderSubtotal').innerText = `$${orderInfo.B_subtotal.toFixed(2)}`;
+    document.getElementById('f_orderTax').innerText = `$${orderInfo.B_tax.toFixed(2)}`;
+    document.getElementById('f_orderTotal').innerText = `$${orderInfo.B_total.toFixed(2)}`;
+
+    //Clear sessionStorage
+    sessionStorage.removeItem('orderInfo');
+    sessionStorage.removeItem('customerInfo');
+}
+
 
 //Initial function calls
 document.addEventListener('DOMContentLoaded',()=>{ //addEventtListener-> wait for page to load before running code
     const currentPage=window.location.pathname;//checks which page were on and runs relevant functions
 
-    if(currentPage.includes('index')|| currentPage.includes('products')){//index default page
+    if(currentPage.includes('index') || currentPage.includes('products') || currentPage === '/'){//index default page
         getProducts();
         updateCartBadge();
     }else if(currentPage.includes('cart')){
@@ -365,11 +432,13 @@ document.addEventListener('DOMContentLoaded',()=>{ //addEventtListener-> wait fo
         //checkout button
         const checkoutButton=document.getElementById('f_checkoutButton');
         if(checkoutButton){
-            checkoutButton.addEventListener('click',checkCart);
+            checkoutButton.addEventListener('click', goToCheckout);
         }
 
         
     }else if(currentPage.includes('checkout')){
-        checkCart();
+        loadCheckoutPage();
+    }else if(currentPage.includes('thankyou')){
+        loadThankYouPage();
     }
 });
