@@ -311,7 +311,7 @@ app.put('/B_updateQuantity', (req, res) => {
   }
 });
 
-// DELETE: Remove item from cart (using URL parameter)
+// DELETE: Remove item from cart
 app.delete('/B_removefromcart/:productId', (req, res) => {
   console.log('🗑️  Removing from cart');
   
